@@ -4,7 +4,9 @@ program main
   implicit none
   integer :: it, it_total, num_proc
   logical :: compute_task=.false., io_task=.false.
-  integer, dimension(4) :: array_local
+  !integer, dimension(4) :: array_local
+  integer, dimension(2,2) :: array_local ! test sending multi array
+  double precision, dimension(4) :: array_local2
   integer :: tag, dest, req
   ! valiables mpi
   integer :: ierr, color, rank_this, rank_total, io_start, comp_start
@@ -60,8 +62,11 @@ program main
 
   ! prepare test data
   if (compute_task) then
-    array_local = (/rank_this,rank_this,rank_this,rank_this/)
+    array_local = reshape((/rank_this+10,rank_this+20,rank_this+30,rank_this+40/), shape(array_local))
     print *, "array_local initialized: ", array_local
+
+    array_local2 = (/rank_this*0.01,rank_this*0.001,rank_this*0.0001,rank_this*0.00001/)
+    print *, "array_local2 initialized: ", array_local2
   endif
 
   call mpi_barrier(MPI_COMM_WORLD, ierr)
@@ -71,19 +76,25 @@ program main
   do it = 1, it_total
     if (mod(it,1000) .eq. 0) then
 
-      if (rank_this == 0) print *, "do io at : ", it
+      if (rank_this == 0) print *, "############## io at : ", it, "################"
       if (compute_task) call do_work()
 
       ! Send my data to the I/O server, note non-blocking send
       if( compute_task ) then
+        ! first array
         dest = 0
         tag  = 0
         print *, "sending local array: ", array_local
         call mpi_isend(array_local, size(array_local), MPI_INTEGER, dest, tag, inter_comm, req, ierr)
+
+        ! second array
+        tag = 1
+        call mpi_isend(array_local2, size(array_local2), MPI_DOUBLE, dest, tag, inter_comm, req, ierr)
+
         !return
       end if
 
-      if (io_task) call do_io(inter_comm, ioserve_comm, it, rank_this)
+      if (io_task) call do_io(inter_comm, ioserve_comm, it)
 
     endif
 
