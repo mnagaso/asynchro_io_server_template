@@ -1,6 +1,6 @@
 FC = mpif90
 
-TARGET = sample
+TARGET = sample_io_server
 OBJS = main.o subroutine_ex.o
 
 .SUFFIXES: .f90
@@ -17,4 +17,4 @@ $(TARGET): $(OBJS)
 #main.o: submod.mod 
 
 clean:
-	rm -f *.o sample
+	rm -f *.o sample_io_server
