@@ -1,6 +1,6 @@
 # asynchro_io_server_template
 
-This is the runnable example of asynchronous IO server written in fortran.
+This is the runnable example of asynchronous IO server implementation written in fortran.
 
 main.f90: main function for initialization, mpi process separation, time iteration.  
 subrountine_ex.f90: examples of subroutines for idling io server, other call to do calculation.
